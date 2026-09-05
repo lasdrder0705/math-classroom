@@ -1,0 +1,10 @@
+{
+  "name": "zhejiang-math-teaching",
+  "version": "1.0.0",
+  "private": true,
+  "description": "浙教版初中数学 · 交互课堂章节站点",
+  "scripts": {
+    "build": "node scripts/build-manifest.js",
+    "dev": "node scripts/build-manifest.js && node server.js"
+  }
+}

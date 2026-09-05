@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>浙教版初中数学 · 交互课堂</title>
+<style>
+  :root {
+    --bg: #f5f3ee;
+    --card: #ffffff;
+    --ink: #2b2620;
+    --muted: #8a8175;
+    --accent: #c85a2e;
+    --accent-soft: #fdeee4;
+    --line: #e8e2d8;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+  .hero {
+    padding: 64px 24px 40px;
+    text-align: center;
+    background: linear-gradient(160deg, #2b2620 0%, #4a3f33 100%);
+    color: #f5f1e8;
+  }
+  .hero .badge {
+    display: inline-block;
+    font-size: 13px;
+    letter-spacing: 2px;
+    padding: 6px 16px;
+    border: 1px solid rgba(245, 241, 232, 0.35);
+    border-radius: 999px;
+    margin-bottom: 18px;
+    color: #e8ddc9;
+  }
+  .hero h1 { font-size: clamp(28px, 5vw, 44px); font-weight: 700; letter-spacing: 1px; }
+  .hero p { margin-top: 12px; color: #cfc4b0; font-size: 15px; }
+  main { max-width: 960px; margin: 0 auto; padding: 40px 24px 80px; }
+  .section-title {
+    display: flex; align-items: center; gap: 12px;
+    font-size: 18px; font-weight: 600; margin-bottom: 20px;
+  }
+  .section-title::after { content: ""; flex: 1; height: 1px; background: var(--line); }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
+  .card {
+    display: block;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 22px;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+  }
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 30px rgba(43, 38, 32, 0.1);
+    border-color: var(--accent);
+  }
+  .card .num {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 34px; height: 34px; padding: 0 8px;
+    background: var(--accent-soft); color: var(--accent);
+    border-radius: 10px; font-weight: 700; font-size: 14px; margin-bottom: 14px;
+  }
+  .card h2 { font-size: 17px; font-weight: 600; line-height: 1.5; margin-bottom: 8px; }
+  .card .meta { font-size: 13px; color: var(--muted); }
+  .card .go { margin-top: 16px; font-size: 14px; color: var(--accent); font-weight: 500; }
+  .empty {
+    text-align: center; padding: 60px 20px; color: var(--muted);
+    border: 1px dashed var(--line); border-radius: 16px; background: var(--card);
+  }
+  .empty code {
+    background: var(--accent-soft); color: var(--accent);
+    padding: 2px 8px; border-radius: 6px; font-size: 13px;
+  }
+  footer { text-align: center; padding: 24px; color: var(--muted); font-size: 13px; }
+</style>
+</head>
+<body>
+  <header class="hero">
+    <div class="badge">浙教版 · 九年级上册</div>
+    <h1>初中数学 · 交互课堂</h1>
+    <p>把每一章做成可以动手玩的课堂，章节持续更新中</p>
+  </header>
+
+  <main>
+    <div class="section-title">章节目录</div>
+    <div id="chapter-list" class="grid"></div>
+    <div id="empty" class="empty" hidden>
+      还没有章节。把做好的教学 HTML 放进 <code>chapters/</code> 目录，刷新这里就会出现。
+    </div>
+  </main>
+
+  <footer>把新的章节 HTML 放入 chapters/ 目录即可自动上架，文件名建议以序号开头（如 02-二次函数.html）</footer>
+
+<script>
+  async function loadChapters() {
+    const list = document.getElementById("chapter-list");
+    const empty = document.getElementById("empty");
+    try {
+      const res = await fetch("chapters.json");
+      const chapters = await res.json();
+      if (!chapters.length) { empty.hidden = false; return; }
+      list.innerHTML = chapters.map((c, i) => {
+        const m = c.file.match(/^(\d+)/);
+        const num = m ? String(parseInt(m[1], 10)).padStart(2, "0") : String(i + 1).padStart(2, "0");
+        const date = new Date(c.updatedAt).toLocaleDateString("zh-CN");
+        return `
+          <a class="card" href="${c.url}">
+            <span class="num">第 ${num} 讲</span>
+            <h2>${c.title}</h2>
+            <div class="meta">更新于 ${date}</div>
+            <div class="go">进入课堂 →</div>
+          </a>`;
+      }).join("");
+    } catch (e) {
+      empty.hidden = false;
+      empty.textContent = "章节列表加载失败，请确认通过服务器访问本页。";
+    }
+  }
+  loadChapters();
+</script>
+</body>
+</html>
